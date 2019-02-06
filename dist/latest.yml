@@ -1,0 +1,8 @@
+version: 2.15.0-develop
+files:
+  - url: rocketchat-setup-2.15.0-develop.exe
+    sha512: ILIp2mo00cGT6uFoPoi1qZwrxwExKRVrUa6PP1fWmx2Z92L7PgOLQEtY6Lvlg3wLHA4TcV9oP2f52zkmFa1tIg==
+    size: 91038409
+path: rocketchat-setup-2.15.0-develop.exe
+sha512: ILIp2mo00cGT6uFoPoi1qZwrxwExKRVrUa6PP1fWmx2Z92L7PgOLQEtY6Lvlg3wLHA4TcV9oP2f52zkmFa1tIg==
+releaseDate: '2019-02-06T15:57:49.327Z'

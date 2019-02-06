@@ -5,11 +5,6 @@ Thumbs.db
 /node_modules
 /package-lock.json
 
-/app
-/coverage
-/dist
-/releases
-/Development.provisionprofile
 
 .idea
 /.idea/*
