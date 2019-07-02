@@ -2,11 +2,14 @@
   "extends": [
     "@rocket.chat/eslint-config"
   ],
-  "rules": {
-    "linebreak-style": "off"
-  }
+<<<<<<< RocketChat.Github/develop
   "parserOptions": {
 		"sourceType": "module",
 		"ecmaVersion": 2018
 	}
+=======
+  "rules": {
+    "linebreak-style": "off"
+  }
+>>>>>>> local
 }
