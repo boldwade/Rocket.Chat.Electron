@@ -1,3 +1,55 @@
+<a name="2.15.3"></a>
+## 2.15.3 (2019-04-30)
+
+
+### Bug Fixes
+
+- [#1198](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1198) Add a module to handle deep links following the documentation
+- [#1196](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1196) Safely compute initials for server name on sidebars
+
+
+
+<a name="2.15.2"></a>
+## 2.15.2 (2019-04-16)
+
+
+### Bug Fixes
+
+- [#1188](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1188) Apply workaround for undo and redo actions
+- [#1189](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1189) Multiple language selection on spellchecking
+- [#1164](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1164) Only set user presence as online when auto away detection is disabled
+- [#1125](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1125) Sidebar and badges
+- [#1187](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1187) Update crashes when host is unreachable
+
+
+### New Features
+
+- [#1157](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1157) Add Traditional Chinese translation
+
+
+
+<a name="2.15.1"></a>
+## 2.15.1 (2019-03-13)
+
+
+### Improvements
+
+- [#1117](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1117) Updated Japanese translation
+
+
+### Bug Fixes
+
+- [#1132](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1132) Apply memoization to spell checking
+- [#1124](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1124) Away detection
+- [#1129](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1129) Mac App Store startup issue
+- [#1140](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1140) Preload scripts compatibility
+- [#1133](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1133) Re-enable download links
+- [#1130](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1130) Reply notifications in MacOS
+- [#1123](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1123) Update button
+- [#1115](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1115) Auto reload server
+
+
+
 <a name="2.15.0"></a>
 # 2.15.0 (2019-02-24)
 
@@ -28,7 +80,7 @@
 
 ### New Features
 
-- [#919](https://github.com/RocketChat/Rocket.Chat.Electron/pull/919) Add "save image" to context menu 
+- [#919](https://github.com/RocketChat/Rocket.Chat.Electron/pull/919) Add "save image" to context menu
 - [#1030](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1030) Add Japanese translation.
 - [#995](https://github.com/RocketChat/Rocket.Chat.Electron/pull/995) Automatic reload on error page
 - [#1044](https://github.com/RocketChat/Rocket.Chat.Electron/pull/1044) Support for MacBooks Touch Bar
