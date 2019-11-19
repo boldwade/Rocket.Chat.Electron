@@ -1,12 +1,11 @@
-import { ipcRenderer, remote } from 'electron';
 import { EventEmitter } from 'events';
-import mem from 'mem';
-const { notifications } = remote.require('./main');
 
+import { ipcRenderer, remote } from 'electron';
+import mem from 'mem';
 
 class Notification extends EventEmitter {
 	static requestPermission() {
-		return;
+
 	}
 
 	static get permission() {
@@ -43,7 +42,11 @@ class Notification extends EventEmitter {
 			icon = await this.createIcon(icon);
 		}
 
-		const notification = notifications.create({ icon, hasReply: canReply, ...options });
+		const notification = new remote.Notification({
+			icon: icon && remote.nativeImage.createFromDataURL(icon),
+			hasReply: canReply,
+			...options,
+		});
 
 		notification.on('show', this.handleShow.bind(this));
 		notification.on('close', this.handleClose.bind(this));

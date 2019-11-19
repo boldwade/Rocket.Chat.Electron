@@ -1,6 +1,8 @@
-import jetpack from 'fs-jetpack';
 import { EventEmitter } from 'events';
+
+import jetpack from 'fs-jetpack';
 import { remote, ipcRenderer } from 'electron';
+
 import i18n from '../i18n';
 
 
@@ -79,8 +81,8 @@ class Servers extends EventEmitter {
 			const { app } = remote;
 			const userDir = jetpack.cwd(app.getPath('userData'));
 			const appDir = jetpack.cwd(jetpack.path(app.getAppPath(), app.getAppPath().endsWith('.asar') ? '..' : '.'));
-			const path = (userDir.find({ matching: 'servers.json', recursive: false })[0] && userDir.path('servers.json')) ||
-				(appDir.find({ matching: 'servers.json', recursive: false })[0] && appDir.path('servers.json'));
+			const path = (userDir.find({ matching: 'servers.json', recursive: false })[0] && userDir.path('servers.json'))
+				|| (appDir.find({ matching: 'servers.json', recursive: false })[0] && appDir.path('servers.json'));
 
 			if (path) {
 				try {
@@ -97,7 +99,6 @@ class Servers extends EventEmitter {
 							localStorage.setItem('sidebar-closed', 'true');
 						}
 					}
-
 				} catch (e) {
 					console.error('Server file invalid');
 				}
@@ -141,6 +142,7 @@ class Servers extends EventEmitter {
 		]);
 
 		if (!response.ok) {
+			// eslint-disable-next-line no-throw-literal
 			throw 'invalid';
 		}
 	}
@@ -242,6 +244,7 @@ class Servers extends EventEmitter {
 		this.hosts = hosts;
 		this.emit('title-setted', hostUrl, title);
 	}
+
 	getProtocolUrlFromProcess(args) {
 		let site = null;
 		if (args.length > 1) {
@@ -259,25 +262,26 @@ class Servers extends EventEmitter {
 		}
 		return site;
 	}
-	showHostConfirmation(host) {
-		return remote.dialog.showMessageBox({
+
+	async showHostConfirmation(host) {
+		const { response } = await remote.dialog.showMessageBox({
 			type: 'question',
 			buttons: [i18n.__('dialog.addServer.add'), i18n.__('dialog.addServer.cancel')],
 			defaultId: 0,
 			title: i18n.__('dialog.addServer.title'),
 			message: i18n.__('dialog.addServer.message', { host }),
-		}, (response) => {
-			if (response === 0) {
-				this.validateHost(host)
-					.then(() => this.addHost(host))
-					.then(() => this.setActive(host))
-					.catch(() => remote.dialog.showErrorBox(i18n.__('dialog.addServerError.title'), i18n.__('dialog.addServerError.message', { host })));
-			}
 		});
+
+		if (response === 0) {
+			this.validateHost(host)
+				.then(() => this.addHost(host))
+				.then(() => this.setActive(host))
+				.catch(() => remote.dialog.showErrorBox(i18n.__('dialog.addServerError.title'), i18n.__('dialog.addServerError.message', { host })));
+		}
 	}
 
-	resetAppData() {
-		const response = remote.dialog.showMessageBox({
+	async resetAppData() {
+		const { response } = await remote.dialog.showMessageBox({
 			type: 'question',
 			buttons: [i18n.__('dialog.resetAppData.yes'), i18n.__('dialog.resetAppData.cancel')],
 			defaultId: 1,
@@ -291,7 +295,6 @@ class Servers extends EventEmitter {
 
 		ipcRenderer.send('reset-app-data');
 	}
-
 }
 
 export default new Servers();

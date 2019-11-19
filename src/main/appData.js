@@ -1,11 +1,11 @@
+import path from 'path';
+
 import { app, ipcMain } from 'electron';
 import jetpack from 'fs-jetpack';
-import path from 'path';
 
 
 function definePath() {
-	const appName = app.getName();
-	const dirName = process.env.NODE_ENV === 'production' ? appName : `${ appName } (${ process.env.NODE_ENV })`;
+	const dirName = process.env.NODE_ENV === 'production' ? app.name : `${ app.name } (${ process.env.NODE_ENV })`;
 
 	app.setPath('userData', path.join(app.getPath('appData'), dirName));
 }
@@ -25,8 +25,12 @@ async function migrate() {
 	try {
 		await jetpack.copyAsync(olderUserDataPath, app.getPath('userData'), { overwrite: true });
 		await jetpack.removeAsync(olderUserDataPath);
-	} catch (e) {
-		return;
+	} catch (error) {
+		if (jetpack.exists(olderUserDataPath)) {
+			throw error;
+		}
+
+		console.log('No data to migrate.');
 	}
 }
 

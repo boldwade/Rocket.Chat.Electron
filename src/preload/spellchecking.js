@@ -1,10 +1,11 @@
+import path from 'path';
+
 import { remote, webFrame } from 'electron';
 import jetpack from 'fs-jetpack';
 import mem from 'mem';
-import path from 'path';
-import spellchecker from 'spellchecker';
-const { app } = remote;
+import spellchecker from '@felixrieseberg/spellchecker';
 
+const { app } = remote;
 
 class SpellCheck {
 	constructor() {
@@ -57,18 +58,16 @@ class SpellCheck {
 			return;
 		}
 
-		if (this.enable('en_US')) {
-			return;
-		}
+		this.enable('en_US');
 	}
 
 	filterDictionaries(dictionaries) {
 		return dictionaries
 			.flatMap((dictionary) => {
 				const matches = /^(\w+?)[-_](\w+)$/.exec(dictionary);
-				return matches ?
-					[`${ matches[1] }_${ matches[2] }`, `${ matches[1] }-${ matches[2] }`, matches[1]] :
-					[dictionary];
+				return matches
+					? [`${ matches[1] }_${ matches[2] }`, `${ matches[1] }-${ matches[2] }`, matches[1]]
+					: [dictionary];
 			})
 			.filter((dictionary) => this.dictionaries.includes(dictionary));
 	}
@@ -125,15 +124,22 @@ class SpellCheck {
 					spellchecker.setDictionary(dictionary, dictionariesPath);
 					return !spellchecker.isMisspelled(text);
 				})
-					.bind(null, this.dictionariesPath)
+					.bind(null, this.dictionariesPath),
 			);
 
 			this.checker = mem(
 				((dictionaries, text) => dictionaries.some((dictionary) => singleDictionaryChecker(dictionary, text)))
-					.bind(null, this.enabledDictionaries)
+					.bind(null, this.enabledDictionaries),
 			);
 		} finally {
-			webFrame.setSpellCheckProvider('', false, { spellCheck: this.checker });
+			webFrame.setSpellCheckProvider('', {
+				spellCheck: (words, callback) => {
+					setTimeout(() => {
+						const misspelled = words.filter((word) => !this.checker(word));
+						callback(misspelled);
+					}, 0);
+				},
+			});
 		}
 	}
 
@@ -152,12 +158,12 @@ class SpellCheck {
 			this.enabledDictionaries.flatMap((language) => {
 				spellchecker.setDictionary(language, this.dictionariesPath);
 				return spellchecker.getCorrectionsForMisspelling(text);
-			})
+			}),
 		));
 	}
 
 	async installDictionaries(filePaths) {
-		for (const filePath of filePaths) {
+		await Promise.all(filePaths.map(async (filePath) => {
 			const name = filePath.basename(filePath, filePath.extname(filePath));
 			const basename = filePath.basename(filePath);
 			const newPath = filePath.join(this.dictionariesPath, basename);
@@ -167,11 +173,11 @@ class SpellCheck {
 			if (!this.dictionaries.includes(name)) {
 				this.dictionaries.push(name);
 			}
-		}
+		}));
 	}
 }
 
-export const spellchecking = new SpellCheck;
+export const spellchecking = new SpellCheck();
 
 export default () => {
 	spellchecking.load();

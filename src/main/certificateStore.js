@@ -1,6 +1,8 @@
+import url from 'url';
+
 import { app, dialog } from 'electron';
 import jetpack from 'fs-jetpack';
-import url from 'url';
+
 import { getMainWindow } from './mainWindow';
 import i18n from '../i18n';
 
@@ -26,16 +28,16 @@ class CertificateStore {
 			if (this.queued[certificate.fingerprint]) {
 				this.queued[certificate.fingerprint].push(callback);
 				return;
-			} else {
-				this.queued[certificate.fingerprint] = [callback];
 			}
+			this.queued[certificate.fingerprint] = [callback];
+
 
 			let detail = `URL: ${ certificateUrl }\nError: ${ error }`;
 			if (this.isExisting(certificateUrl)) {
 				detail = i18n.__('error.differentCertificate', { detail });
 			}
 
-			dialog.showMessageBox(await getMainWindow(), {
+			const { response } = await dialog.showMessageBox(await getMainWindow(), {
 				title: i18n.__('dialog.certificateError.title'),
 				message: i18n.__('dialog.certificateError.message', { issuerName: certificate.issuerName }),
 				detail,
@@ -45,18 +47,18 @@ class CertificateStore {
 					i18n.__('dialog.certificateError.no'),
 				],
 				cancelId: 1,
-			}, async (response) => {
-				if (response === 0) {
-					this.add(certificateUrl, certificate);
-					await this.save();
-					if (webContents.getURL().indexOf('file://') === 0) {
-						webContents.send('certificate-reload', certificateUrl);
-					}
-				}
-
-				this.queued[certificate.fingerprint].forEach((cb) => cb(response === 0));
-				delete this.queued[certificate.fingerprint];
 			});
+
+			if (response === 0) {
+				this.add(certificateUrl, certificate);
+				await this.save();
+				if (webContents.getURL().indexOf('file://') === 0) {
+					webContents.send('certificate-reload', certificateUrl);
+				}
+			}
+
+			this.queued[certificate.fingerprint].forEach((cb) => cb(response === 0));
+			delete this.queued[certificate.fingerprint];
 		});
 	}
 
