@@ -1,8 +1,6 @@
-import { remote } from 'electron';
+import { remote, app } from 'electron';
 
 import { getMeteor, getTracker, getGetUserPreference, getUserPresence } from './rocketChat';
-
-const { powerMonitor } = remote;
 
 const handleUserPresence = () => {
 	const Meteor = getMeteor();
@@ -25,22 +23,36 @@ const handleUserPresence = () => {
 
 	let prevState;
 	setInterval(() => {
-		const state = powerMonitor.getSystemIdleState(idleThreshold);
+		const state = remote.powerMonitor.getSystemIdleState(idleThreshold);
 
-		if (prevState !== state) {
-			const isOnline = !isAutoAwayEnabled || state === 'active' || state === 'unknown';
-
-			if (isOnline) {
-				Meteor.call('UserPresence:online');
-			} else {
-				Meteor.call('UserPresence:away');
-			}
-
-			prevState = state;
+		if (prevState === state) {
+			return;
 		}
+
+		const isOnline = !isAutoAwayEnabled || state === 'active' || state === 'unknown';
+
+		if (isOnline) {
+			Meteor.call('UserPresence:online');
+		} else {
+			Meteor.call('UserPresence:away');
+		}
+
+		prevState = state;
 	}, 1000);
 };
 
+// if the system is put to sleep or screen is locked(windows OS), set userPresence to away
+const handleSystemActions = () => {
+	const Meteor = getMeteor();
+	remote.powerMonitor.on('suspend', () => {
+		Meteor.call('UserPresence:away');
+	});
+	// windows OS only
+	remote.powerMonitor.on('lock-screen', () => {
+		Meteor.call('UserPresence:away');
+	});
+};
 export default () => {
 	window.addEventListener('load', handleUserPresence);
+	window.addEventListener('load', handleSystemActions);
 };

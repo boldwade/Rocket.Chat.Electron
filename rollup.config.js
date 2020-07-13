@@ -1,7 +1,8 @@
 import builtinModules from 'builtin-modules';
-import jetpack from 'fs-jetpack';
+import glob from 'glob';
 import babel from 'rollup-plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
+import copy from 'rollup-plugin-copy';
 import json from 'rollup-plugin-json';
 import nodeResolve from 'rollup-plugin-node-resolve';
 import replace from 'rollup-plugin-replace';
@@ -17,6 +18,13 @@ const bundleOptions = {
 		...Object.keys(appManifest.devDependencies),
 	],
 	plugins: [
+		copy({
+			targets: [
+				{ src: 'src/i18n/*.i18n.json', dest: 'app/i18n' },
+				{ src: 'src/public/*', dest: 'app/public' },
+				{ src: 'node_modules/@rocket.chat/icons/dist/*', dest: 'app/icons' },
+			],
+		}),
 		json(),
 		replace({
 			'process.env.BUGSNAG_API_KEY': JSON.stringify(process.env.BUGSNAG_API_KEY),
@@ -34,8 +42,7 @@ const createTestEntries = () => {
 	}
 
 	const rendererSpecs = [
-		...jetpack.find('src/scripts', { matching: '*.spec.js' }),
-		...jetpack.find('src/preload', { matching: '*.spec.js' }),
+		...glob.sync('src/**/*.spec.js'),
 	];
 	return [
 		...rendererSpecs.length
@@ -69,19 +76,6 @@ export default [
 			{
 				file: 'app/app.js',
 				format: 'cjs',
-				sourcemap: true,
-			},
-		],
-	},
-	{
-		input: 'src/i18n/index.js',
-		...bundleOptions,
-		output: [
-			{
-				file: 'app/i18n/index.js',
-				format: 'cjs',
-				intro: '(function () {',
-				outro: '})()',
 				sourcemap: true,
 			},
 		],
