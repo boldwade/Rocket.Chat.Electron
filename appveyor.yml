@@ -1,6 +1,6 @@
 image: Visual Studio 2017
 environment:
-  nodejs_version: "10"
+  nodejs_version: "12"
 platform:
   - x64
 skip_tags: true
@@ -8,7 +8,7 @@ shallow_clone: true
 clone_depth: 1
 cache:
   - "%LOCALAPPDATA%/Yarn"
-  - node_modules -> package.json
+  - node_modules -> yarn.lock
 
 branches:
   only:
@@ -22,23 +22,27 @@ branches:
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
-  - yarn
 
 build_script:
   - ps: |
       if ($env:CSC_LINK_0 -and $env:CSC_LINK_1) {
-        Write-Output ("CSC_LINK_0 has {0} characters" -f $env:CSC_LINK_0.length)
-        Write-Output ("CSC_LINK1 has {0} characters" -f $env:CSC_LINK_1.length)
-        Write-Output ("CSC_LINK2 has {0} characters" -f $env:CSC_LINK_2.length)
-        $env:CSC_LINK = $env:CSC_LINK_2 + $env:CSC_LINK_1
+        $env:CSC_LINK = $env:CSC_LINK_0 + $env:CSC_LINK_1
         Write-Output ("CSC_LINK has {0} characters" -f $env:CSC_LINK.length)
         $tmp = New-TemporaryFile
         [Convert]::FromBase64String($env:CSC_LINK) | Set-Content ($tmp.FullName + ".p12") -Encoding Byte
         $env:CSC_LINK = ($tmp.FullName + ".p12")
       }
-  - yarn test
+  - yarn --check-files --production=false
   - set NODE_ENV=production
-  - yarn release
+  - yarn build
+  - yarn test
+  - yarn electron-builder --publish onTagOrDraft --x64 --ia32
+  - ps: |
+      $p = Start-Process -FilePath ".\dist\win-unpacked\Rocket.Chat.exe" -PassThru -RedirectStandardOutput .\output.log -RedirectStandardError .\error.log
+      Start-Sleep -s 30
+      $p.Kill()
+      Get-Content -Path .\output.log
+      Get-Content -Path .\error.log
 
 # on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
